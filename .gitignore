@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Reports of the harness audit
+harness-audit-*.md
+
+# IDE
+.idea/

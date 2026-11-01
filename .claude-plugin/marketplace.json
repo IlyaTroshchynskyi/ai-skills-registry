@@ -1,0 +1,14 @@
+{
+  "name": "troshchynskyi-plugins",
+  "description": "Claude Code plugins by Illia Troshchynskyi",
+  "owner": {
+    "name": "Illia Troshchynskyi"
+  },
+  "plugins": [
+    {
+      "name": "harness-audit",
+      "source": "./plugins/harness-audit",
+      "description": "Audits a repository and a developer's Claude Code setup and delivers evidence-backed recommendations: instructions, verification commands, documentation, skills, rules, hooks, subagents and MCP."
+    }
+  ]
+}

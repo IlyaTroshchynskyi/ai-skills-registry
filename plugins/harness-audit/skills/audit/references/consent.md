@@ -43,9 +43,18 @@ Anything without consent is marked in the report with the phrase "not checked â€
 >    leave your machine. And read the PR history through `gh` / `glab` (read-only).
 > 7. **Please run `/doctor` in your session** and pass me the output or the path to the plan file: it
 >    shows unused extensions, slow hooks and excess content in `CLAUDE.md`.
+>
+> And for the documentation check, answer in words:
+>
+> - **What do you do with specs and design docs after implementation: keep, archive or delete?** This
+>   decides whether they move to `docs/archive/` or are deleted once their decisions are in ADRs.
 
 Item 2 only if the project has history (`modules/history.md`). Item 5 only if the commands from item 4
 cannot pass without the service.
+
+The documentation question only if area G is checked and the step 2 inventory found specs or design
+docs. It is asked here, not at step 6, because the group G subagent needs the answer at step 4. No
+answer: the subagent gives a conditional recommendation and the question goes to "Open questions".
 
 ## Which commands to offer
 

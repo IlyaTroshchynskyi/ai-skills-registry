@@ -238,6 +238,9 @@ sources: call it a convention in the report, not a standard. Besides the documen
 loading class: always-loaded (root `CLAUDE.md`), on demand (skills, rules with `paths`, nested files),
 reference (`docs/`).
 
+What "I work alone" and a minimal structure cancel and what they do not: `docs-guide.md`,
+introduction.
+
 - **G1. The type of each document.** For each `*.md` outside `node_modules` and outside specs: lines,
   level 1–2 headings, Diátaxis type (`docs-guide.md`, section 1). A document with headings of three or
   four types is a candidate for splitting. → What moves where, by section.
@@ -257,17 +260,35 @@ reference (`docs/`).
   - CTX-F1 — an instruction file unchanged for more than 90 days with more than 100 commits in the
     repository ([unrot](https://github.com/unrot-dev/unrot)).
 - **G5. Design docs and specs after implementation.** Do they sit next to current documentation as
-  equals? → Decisions from them go to an ADR, the file itself to an archive with a status mark: agents
-  quote outdated entries. If the person is going to delete them ("history", "we will delete it later"),
-  that is no reason to skip them but the last chance: they are a source. Decisions with alternatives
-  go to an ADR (G6), the description of working behavior goes to a document of the target tree (G10),
-  with a `file:line` link saying where the text came from.
-- **G6. Decisions.** Is there a place for ADRs? Candidates: 1–3 decisions with real alternatives that
-  are not recorded as ADRs. Search in this order (`docs-guide.md`, section 4): design docs and specs;
-  existing documentation that explains "why"; signals in the code. If nothing turns up, ask at step 6
-  which decisions the person chose from several options. → Concrete ADRs with a source. If there is no
-  ADR practice, propose starting one in any case: a directory, a template and a line in `CLAUDE.md`.
-  Do not propose ADRs for conventions without alternatives.
+  equals? Agents quote outdated entries. Decisions with alternatives recorded in them become ADRs
+  during the audit, whether the spec is kept or deleted: the report gives the full text of each
+  (`docs-guide.md`, section 4, "Transferring decisions from specs"). The description of working
+  behavior goes to a document of the target tree (G10), with a `file:line` link saying where the text
+  came from. What happens to the file itself depends on the answer at step 3 (`references/consent.md`)
+  "what do you do with specs after implementation":
+  - keep or archive → the file goes to `docs/archive/` with a status mark;
+  - delete → do not propose `docs/archive/`. If the person is going to delete them ("history", "we
+    will delete it later"), that is no reason to skip them but the last chance: they are a source. The
+    report gets a table, one row per spec:
+
+    | Spec | ADRs from it (numbers) | Description of working behavior → which document | What to drop |
+    | --- | --- | --- | --- |
+
+    Order for each spec: ADRs and the move first, then deletion, in one PR per spec, so the reason is
+    never deleted before it is recorded; different specs go in different PRs (`docs-guide.md`,
+    section 6).
+- **G6. Decisions.** Always checked and always in the report (`docs-guide.md`, section 4): answers
+  about readers ("I work alone") or about a minimal structure are no reason to skip G6. The audit
+  invents no ADRs: decisions recorded in specs are transferred under G5; for every other decision it
+  proposes the practice, and the people who decide write ADRs after the audit. Does the project keep
+  ADRs? If not → the folder `docs/decisions/`, the template,
+  the line for the root `CLAUDE.md`, what ADRs give this project, and one example ADR on the most
+  architecturally significant decision the repository shows (storage, main framework, execution
+  model, protocol, an own implementation instead of a ready one), with `file:line` and placeholders
+  for what the repository does not say, unless an ADR from G5 already covers it; no such decision →
+  the template alone. If it does → no new
+  folder: new ADRs go to the project's ADR folder; check the format and the `CLAUDE.md` line. Do not
+  propose ADRs for conventions without alternatives.
   - CTX-D3 — an ADR has no status or superseded-by field.
 - **G7. Entry points.** A short root README as a map; a README in each top-level code folder; a
   `docs/README.md` table of contents in the form "file — when to read". A table of contents only in
@@ -277,16 +298,36 @@ reference (`docs/`).
   a generic `misc.md` → rename.
 - **G9. Freshness mechanisms.** Docs are updated in the same MR (MR template, a rule in the
   instructions); link checks in CI; section owners. → Propose the lightest option; a new tool is
-  "Needs approval".
+  "Needs approval". The PR/MR template (`docs-guide.md`, section 7) is G11's recommendation: here
+  only note whether it exists; "I work alone" is no reason to drop it.
   - CTX-F3 — no linter for instruction files in CI, pre-commit or a `Stop` hook.
   - CTX-F4 — instruction files only grow: over recent months lines were added but not removed
     (`git log --numstat`).
-- **G10. Target structure.** Build the tree according to `docs-guide.md`, section 6: only existing
-  content, with the origin of the text on the right; separately, what disappears and why. Do not
-  propose empty folders.
+- **G10. Target structure.** Build the tree according to `docs-guide.md`, section 6: existing content
+  with the origin of the text on the right, plus the new documents this audit proposes (ADRs from
+  specs, the ADR template and example, the glossary, `docs/README.md`), marked "new"; separately, what
+  disappears and why, and the folders for later. Do not propose empty folders.
 - **G11. Documentation rules.** Is it written down when, what and where to write (`docs-guide.md`,
   section 7)? Do people (`docs/README.md`, MR template) and the agent see it? The agent's main support
   is a line in the root `CLAUDE.md`: a rule with `paths` on docs triggers only when working with a
   matching file and disappears after compaction. Does git track these files? → A draft section for
   this repository: a "what changed → which document → why" table with real paths only, plus the texts
-  for `CLAUDE.md`, the rule and the MR template.
+  for `CLAUDE.md` and the rule. The PR/MR template follows `docs-guide.md`, section 7: with a remote,
+  the full text and the line for the root `CLAUDE.md` if there is no template, what to change if there
+  is one. This goes into the report even if the rules are complete: "I work alone" is no reason to
+  drop the template. It is one recommendation, written here and not under G9.
+- **G12. Glossary.** Always, like the ADR practice: if the project has no glossary yet
+  (`git ls-files | grep -i glossary`), propose `docs/glossary.md` (`docs-guide.md`, section 2),
+  whatever the number of terms. Reader: the agent and a person. Question: "what does X mean in this
+  project and what do I call it in new code". Look for:
+  - terms used in code, instructions or docs and not explained where they appear: task or module
+    codes, internal words for common things ("slot", "golden"), abbreviations;
+  - one concept named differently in different places: the naming rule "one word per concept"; the
+    entry records the chosen word and the word not to use.
+
+  Sources of terms: enums, table names, codes from the instructions, frequent nouns in `CLAUDE.md` and
+  rules. How many entries and how detailed depends on the project's stage and size: an early or small
+  project gets the few terms it has now, a large one every term found, grouped by subject area. No
+  terms found → the file with the entry format, so terms are added as they appear. → The entries with
+  `file:line` and the line for `CLAUDE.md`: "`docs/glossary.md` — read before naming a new domain
+  thing". If a glossary exists: check its entries against the format and the terms found.

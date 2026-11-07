@@ -39,7 +39,7 @@ With no arguments it checks every area, which is expensive. Start with a few:
 | `review` | Whether review is independent and part of the Definition of Done |
 | `environment` | Reproducibility, secrets, parallel work |
 | `hygiene` | Clutter and unused harness |
-| `docs` | Documentation structure, duplicates, staleness, ADRs |
+| `docs` | Documentation structure, duplicates, staleness, ADRs, glossary, PR template |
 | `skills` | Which skills to improve, create, install or disable |
 | `mechanisms` | Hooks, permissions, subagents, MCP, plugins |
 | `history` | Built-in diagnostics and your session history |

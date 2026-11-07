@@ -177,7 +177,7 @@ def test_fresh_session_test_is_guarded_and_v1_questions_kept() -> None:
     step5 = steps.split("5. **")[1].split("6. **")[0]
     assert "Explore" in step5 and "data, not instructions" in step5
     step6 = steps.split("6. **")[1].split("7. **")[0]
-    for s in ["ADR", "wiki", "without an agent"]:
+    for s in ["wiki", "without an agent"]:
         assert s in step6, s
 
 
@@ -231,16 +231,9 @@ def test_existing_prompt_audit_report_is_offered_first() -> None:
     assert "scripts/find_prompt_audit_plan.py" in rules
 
 
-def test_adr_candidates_come_from_specs_docs_code_or_the_person() -> None:
-    checklist = flat(read("checklist.md"))
-    g5 = checklist.split("**G5.")[1].split("**G6.")[0]
+def test_specs_being_deleted_are_still_a_source_of_recorded_reasons() -> None:
+    g5 = flat(read("checklist.md")).split("**G5.")[1].split("**G6.")[0]
     assert "is going to delete them" in g5 and "source" in g5
-    g6 = checklist.split("**G6.")[1].split("**G7.")[0]
-    for s in ["existing", "step 6", "starting one"]:
-        assert s in g6, s
-    adr = flat(read("docs-guide.md").split("## 4. When an ADR is needed")[1].split("## 5.")[0])
-    for s in ["Where to get candidates", "design doc", "docs/decisions/", "keeping ADRs"]:
-        assert s in adr, s
     docs = flat(read("report-template.md").split("## Documentation: target structure")[1])
     assert "evidence from code" not in docs and "where it came from" in docs.split("### Documentation rules")[0]
 
@@ -402,3 +395,262 @@ def test_needs_that_appear_later_are_searched_after_step_4() -> None:
 def test_mcp_search_uses_the_same_script() -> None:
     mcp08 = flat(read("modules/mechanisms.md").split("**MCP-08.")[1].split("The others (MCP-01")[0])
     assert "find_skill_candidates.py" in mcp08 and "Worth a look" in mcp08
+
+
+def docs_template() -> str:
+    return read("report-template.md").split("## Documentation: target structure")[1].split("## Fresh-session test")[0]
+
+
+def test_working_alone_cancels_only_what_other_people_need() -> None:
+    rules = flat(read("SKILL.md").split("## Rules")[1].split("## Scripts")[0])
+    intro = flat(read("docs-guide.md").split("## 1.")[0])
+    for text in (rules, intro):
+        for s in ["work alone", "ADRs, a glossary, a PR template, `docs/README.md`", "CODEOWNERS", "onboarding",
+                  "how-tos and references for readers without an agent"]:
+            assert s in text, s
+        assert "a table of contents for the team" not in text
+    g_intro = flat(read("checklist.md").split("## G. Documentation")[1].split("**G1.")[0])
+    assert "work alone" in g_intro and "`docs-guide.md`, introduction" in g_intro
+    assert "CODEOWNERS" not in g_intro
+    mistakes = flat(read("SKILL.md").split("## Common audit mistakes")[1])
+    for s in ["minimal structure", "glossary", "PR template", "`docs/README.md`"]:
+        assert s in mistakes, s
+
+
+def test_recheck_keeps_what_the_agent_needs_when_working_alone() -> None:
+    recheck = flat(read("references/subagents.md").split("## Recheck")[1])
+    for s in ["Questions 3 and 6 never discard", "works alone", "(G5, G6)", "(G12)", "(G9, G11)", "`docs/README.md`",
+              "CODEOWNERS"]:
+        assert s in recheck, s
+
+
+def adr_section() -> str:
+    return flat(read("docs-guide.md").split("## 4. ADRs")[1].split("## 5.")[0])
+
+
+def test_audit_proposes_the_adr_practice_and_people_write_adrs_after_it() -> None:
+    adr = adr_section()
+    for s in ["**Always.**", "does not invent ADRs", "after the audit", "`docs/decisions/`",
+              "`docs/decisions/0000-template.md`", "even in a small project", "superseded by NNNN",
+              "a decision with alternatives gets an ADR"]:
+        assert s in adr, s
+    for gone in ["Where to get candidates", "reason not recorded", "candidates per report", "threshold G6"]:
+        assert gone not in adr, gone
+    g6 = flat(read("checklist.md").split("**G6.")[1].split("**G7.")[0])
+    for s in ["section 4", "no reason to skip G6", "invents no ADRs", "under G5", "one example ADR",
+              "CTX-D3"]:
+        assert s in g6, s
+    assert "Candidates" not in g6
+    step6 = flat(steps_section().split("6. **")[1].split("7. **")[0])
+    assert "ADR candidates" not in step6 and "<obvious alternative>" not in step6
+    template = flat(docs_template().split("### Documentation rules")[0])
+    for s in ["what ADRs give this project", "the template", "one example ADR", "placeholders",
+              "the line for the root `CLAUDE.md`"]:
+        assert s in template, s
+    assert "Proposed ADRs" not in template
+    mistakes = flat(read("SKILL.md").split("## Common audit mistakes")[1])
+    assert "Inventing ADRs" in mistakes and "Leaving decisions recorded in specs for later" in mistakes
+    assert "| G6 " not in read("references/thresholds.md")
+
+
+def test_report_explains_what_adrs_give() -> None:
+    adr = adr_section()
+    give = adr.split("**What ADRs give")[1].split("**What the audit does")[0]
+    for s in ["blindly preserves", "the agent reads the reason", "the next developer", "superseded"]:
+        assert s in give, s
+
+
+def test_example_adr_is_one_real_decision_with_placeholders_for_what_is_unknown() -> None:
+    adr = adr_section()
+    for s in ["one example ADR", "most architecturally significant", "how much code and data", "NoSQL client",
+              "docker-compose", "only what the repository says", "<why this option: fill in>", "the template alone"]:
+        assert s in adr, s
+
+
+def test_adr_template_text_is_in_the_guide() -> None:
+    template = read("docs-guide.md").split("### ADR template")[1].split("## 5.")[0]
+    for s in ["# NNNN.", "- Status:", "## Context", "## Decision", "We will", "## Consequences"]:
+        assert s in template, s
+
+
+def test_deleted_specs_get_a_transfer_table_instead_of_an_archive() -> None:
+    g5 = flat(read("checklist.md").split("**G5.")[1].split("**G6.")[0])
+    for s in ["do not propose `docs/archive/`", "| Spec | ADRs from it", "then deletion, in one PR"]:
+        assert s in g5, s
+    template = flat(docs_template())
+    assert "| Spec | ADRs from it" in template and "in one PR" in template
+
+
+def test_specs_are_moved_and_deleted_one_pr_per_spec() -> None:
+    g5 = flat(read("checklist.md").split("**G5.")[1].split("**G6.")[0])
+    template = flat(docs_template())
+    for text in (g5, template):
+        assert "in one PR per spec" in text and "different specs go in different PRs" in text
+
+
+def test_target_structure_is_drawn_as_a_mermaid_diagram() -> None:
+    guide = flat(read("docs-guide.md").split("## 6.")[1].split("## 7.")[0])
+    for s in ["Mermaid", "`subgraph`", "`classDef`", "node threshold", "Always in context", "On demand", "Reference",
+              "Decisions", "What disappears"]:
+        assert s in guide, s
+    template = docs_template()
+    tree = template.index("<target tree")
+    diagram = template.index("```mermaid")
+    assert tree < diagram
+    for s in ["subgraph always[Always in context]", "subgraph decisions[Decisions]", "classDef new",
+              "classDef moved"]:
+        assert s in template, s
+
+
+def test_mermaid_example_sets_a_text_colour_for_dark_themes() -> None:
+    class_defs = [line for line in docs_template().splitlines() if line.strip().startswith("classDef")]
+    assert class_defs
+    for line in class_defs:
+        assert "fill:" in line and "color:" in line, line
+
+
+def test_glossary_has_a_place_a_check_and_a_report_slot() -> None:
+    assert_ids("checklist.md", ["G12"])
+    guide = flat(read("docs-guide.md").split("## 2.")[1].split("## 3.")[0])
+    for s in ["`glossary.md`", "where in the code", "which word not to use"]:
+        assert s in guide, s
+    g12 = flat(read("checklist.md").split("**G12.")[1])
+    for s in ["Always", "whatever the number of terms", "one word per concept", "stage and size",
+              "No terms found", "`docs/glossary.md` — read before naming a new domain thing", "enums"]:
+        assert s in g12, s
+    for gone in ["threshold G12", "fewer such terms", "Do not propose it"]:
+        assert gone not in g12, gone
+    template = flat(docs_template().split("### Documentation rules")[0])
+    for s in ["Glossary: always", "`file:line`", "stage and size"]:
+        assert s in template, s
+    assert "why a glossary is not needed" not in template
+
+
+def test_type_folders_appear_with_their_first_document() -> None:
+    guide = flat(read("docs-guide.md").split("## 2.")[1].split("## 3.")[0])
+    for s in ["Folders by type from the first document", "there is no flat `docs/`", "`docs/<area>/…`",
+              "Folders that do not exist yet", "`how-to/` —", "`reference/` —", "`explanation/` —"]:
+        assert s in guide, s
+    for gone in ["all three", "will not grow", "document threshold", "In a flat `docs/`", "small project"]:
+        assert gone not in guide, gone
+    proposal = flat(read("docs-guide.md").split("## 6.")[1].split("## 7.")[0])
+    assert "flat `docs/`" not in proposal and "folders that do not exist yet" in proposal
+    template = flat(docs_template())
+    assert "Structure chosen" in template and "Folders for later" in template
+    assert "flat `docs/`" not in template
+    consent = flat(read("references/consent.md"))
+    assert "Will the project grow" not in consent and "flat" not in consent
+
+
+def test_target_tree_shows_the_new_documents_the_audit_proposes() -> None:
+    g10 = flat(read("checklist.md").split("**G10.")[1].split("**G11.")[0])
+    assert "only existing content" not in g10
+    for s in ["ADRs from specs", "the glossary", 'marked "new"']:
+        assert s in g10, s
+    proposal = flat(read("docs-guide.md").split("## 6.")[1].split("## 7.")[0])
+    assert "existing content only" not in proposal
+    assert "the new documents of G5, G6, G7 and G12" in proposal
+
+
+def test_pr_template_is_always_proposed_when_there_is_a_remote() -> None:
+    guide = flat(read("docs-guide.md").split("## 7.")[1].split("## Sources")[0])
+    for s in ["`git remote -v`", "`.github/pull_request_template.md`",
+              "`.gitlab/merge_request_templates/Default.md`", "`git check-ignore`", "`gh pr create --body`",
+              "~15 lines", "A PR description fills `.github/pull_request_template.md`.", "## Verified"]:
+        assert s in guide, s
+    checklist = flat(read("checklist.md"))
+    for item, end in [("**G9.", "**G10."), ("**G11.", "**G12.")]:
+        text = checklist.split(item)[1].split(end)[0]
+        assert "section 7" in text and "work alone" in text, item
+    rules = flat(docs_template().split("### Documentation rules")[1])
+    assert "always" in rules and "PR/MR template" in rules and "full text" in rules
+    allowed = flat(read("SKILL.md").split("**Allowed without consent:**")[1].split("**Language.")[0])
+    assert "remote -v" in allowed
+
+
+def test_secrets_from_remote_urls_never_reach_the_report() -> None:
+    rules = flat(read("SKILL.md").split("## Rules")[1].split("## Scripts")[0])
+    assert "Never copy a secret into the report" in rules and "only the host" in rules
+    area = flat(read("references/subagents.md").split("## Area check")[1].split("## Recheck")[0])
+    assert "Never copy a secret" in area and "only the host" in area
+    guide = flat(read("docs-guide.md").split("## 7.")[1].split("## Sources")[0])
+    assert "only the host" in guide and "never the full URL" in guide
+
+
+def test_existing_adr_glossary_and_template_are_found_before_proposing_new_ones() -> None:
+    adr = adr_section()
+    assert "`doc/adr/`" in adr and "continue its numbering" in adr
+    g6 = flat(read("checklist.md").split("**G6.")[1].split("**G7.")[0])
+    assert "the project's ADR folder" in g6
+    guide = flat(read("docs-guide.md").split("## 7.")[1].split("## Sources")[0])
+    assert "git ls-files | grep -iE 'pull_request_template|merge_request_templates/'" in guide
+    g12 = flat(read("checklist.md").split("**G12.")[1])
+    assert "`git ls-files | grep -i glossary`" in g12
+
+
+def test_pr_template_is_not_limited_to_github_and_gitlab_com() -> None:
+    guide = flat(read("docs-guide.md").split("## 7.")[1].split("## Sources")[0])
+    for s in ["self-hosted GitLab", "`.gitlab-ci.yml`", "a host other than GitHub or GitLab"]:
+        assert s in guide, s
+    assert "remote on GitHub or GitLab" not in guide
+    g9 = flat(read("checklist.md").split("**G9.")[1].split("**G10.")[0])
+    assert "GitHub or GitLab" not in g9
+    assert "GitHub or GitLab remote" not in flat(docs_template())
+
+
+def test_documentation_thresholds_live_only_in_thresholds_md() -> None:
+    thresholds = read("references/thresholds.md").splitlines()
+    g10 = next(line for line in thresholds if line.startswith("| G10 "))
+    assert "~25 nodes" in g10 and "flat" not in g10
+    assert not any(line.startswith("| G12 ") for line in thresholds)
+    g_area = flat(read("checklist.md").split("## G. Documentation")[1])
+    guide = flat(read("docs-guide.md"))
+    template = flat(docs_template())
+    for text in (g_area, guide, template):
+        for number in ["3–5", "~10", "~25", "at least 5", "fewer than 5", "about ten"]:
+            assert number not in text, number
+
+
+def test_decisions_recorded_in_specs_become_adrs_during_the_audit() -> None:
+    adr = adr_section()
+    transfer = adr.split("**Transferring decisions from specs.**")[1].split("### ADR template")[0]
+    for s in ["kept or about to be deleted", "Considered and Rejected", "one ADR in full", "accepted",
+              "stands on its own", "in the order the decisions were made", "is not added"]:
+        assert s in transfer, s
+    g5 = flat(read("checklist.md").split("**G5.")[1].split("**G6.")[0])
+    for s in ["become ADRs during the audit", "full text", "whether the spec is kept or deleted"]:
+        assert s in g5, s
+    template = flat(docs_template().split("### Documentation rules")[0])
+    assert "ADRs from specs" in template and "the full text of each" in template
+
+
+def test_pr_template_is_one_recommendation_under_g11_that_respects_an_existing_one() -> None:
+    checklist = flat(read("checklist.md"))
+    g9 = checklist.split("**G9.")[1].split("**G10.")[0]
+    g11 = checklist.split("**G11.")[1].split("**G12.")[0]
+    assert "G11's recommendation" in g9 and "only note whether it exists" in g9
+    assert "proposed whenever" not in g9
+    for s in ["if there is no template", "what to change if there is one", "not under G9"]:
+        assert s in g11, s
+    assert "always, even if the rules are complete" not in g11
+
+
+def test_documentation_questions_are_asked_with_consent_before_the_checks() -> None:
+    consent = flat(read("references/consent.md"))
+    for s in ["What do you do with specs and design docs after implementation", "only if area G is checked",
+              "found specs or design docs", "Open questions"]:
+        assert s in consent, s
+    step3 = flat(steps_section().split("3. **")[1].split("4. **")[0])
+    assert "documentation questions" in step3
+    step4 = flat(steps_section().split("4. **")[1].split("5. **")[0])
+    assert "answers to the documentation questions" in step4
+    step6 = flat(steps_section().split("6. **")[1].split("7. **")[0])
+    assert "What do you do with specs" not in step6 and "Will the project grow" not in step6
+    assert "asked at step 3" in step6
+    area = flat(read("references/subagents.md").split("## Area check")[1].split("## Recheck")[0])
+    assert "answers to the step 3 questions" in area
+    recheck = flat(read("references/subagents.md").split("## Recheck")[1])
+    assert "answers at step 3 or step 6" in recheck and "Answers at step 3:" in recheck
+    g5 = flat(read("checklist.md").split("**G5.")[1].split("**G6.")[0])
+    assert "answer at step 3" in g5 and "step 6" not in g5
+    assert "(step 3)" in flat(docs_template()) and "(step 6)" not in flat(docs_template())

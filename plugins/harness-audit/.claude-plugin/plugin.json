@@ -1,7 +1,7 @@
 {
   "name": "harness-audit",
   "description": "Audits a repository and a developer's Claude Code setup and delivers evidence-backed recommendations: instructions, verification commands, documentation, skills, rules, hooks, subagents and MCP.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Illia Troshchynskyi"
   },

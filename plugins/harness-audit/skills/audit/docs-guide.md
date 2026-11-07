@@ -5,7 +5,7 @@
 - 1. Four document types (Diátaxis)
 - 2. What lives where
 - 3. What NOT to propose as a separate document
-- 4. When an ADR is needed
+- 4. ADRs: propose the practice
 - 5. How documentation stays current
 - 6. How to present a structure proposal in the report
 - 7. Documentation rules
@@ -13,6 +13,12 @@
 
 Read this file when you go through group G of the checklist. Each documentation recommendation rests
 on one of the rules below and explains "why" in its words, applied to this repository.
+
+**"I work alone" does not cancel what the agent and the next developer need: ADRs, a glossary, a PR
+template, `docs/README.md`.** The project may be handed over, and the agent reads these files in every
+task. The answer cancels only what today only other people need: CODEOWNERS, onboarding pages,
+how-tos and references for readers without an agent (step 6). The choice of a minimal structure does
+not cancel them either: it cuts folders, not these artifacts.
 
 ## 1. Four document types (Diátaxis)
 
@@ -46,15 +52,33 @@ its design and a short reference can live together until the reference part grow
 | `reference/`         | Facts that are not in the code or cannot be read there | Noun: `api.md`                        |
 | `explanation/`       | Design and reasons; one complex feature, one file      | Topic: `authorization.md`             |
 | `decisions/`         | ADRs                                                   | `NNNN-decision-as-a-phrase.md`        |
+| `glossary.md`        | Domain and project terms                               | `docs/glossary.md`, unless one exists (G12) |
 | `runbooks/`          | Symptom → diagnosis → action                           | Symptom: `backend-returns-5xx.md`     |
-| `archive/`           | Design docs and specs after implementation             | Date + topic                          |
+| `archive/`           | Implemented design docs and specs the person keeps (G5) | Date + topic                         |
 | `generated/`         | References built by a script from the code             | Marked "generated, do not edit"       |
 
 Rules:
 
-- **Do not propose empty folders.** A folder appears together with a document. A flat `docs/` is fine
-  in a small project if the type is clear from the file name. Why: an empty structure gives the reader
-  nothing and creates the appearance of order.
+- **Do not propose empty folders.** A folder appears together with a document. Why: an empty
+  structure gives the reader nothing and creates the appearance of order.
+- **Folders by type from the first document.** `how-to/`, `reference/` and `explanation/` appear as
+  soon as the target structure has one document of that type: there is no flat `docs/`. With several
+  subject areas or services, folders by area (`docs/<area>/…`) with the same type folders inside.
+  `docs/README.md`, `docs/glossary.md` and `docs/decisions/` stay where they are in every case. Why:
+  the path shows the type before the file is opened, and a folder added later means moving every file
+  and fixing every link.
+- **Folders that do not exist yet.** For each type the target structure has no document of, the report
+  says in one line when to create its folder and why:
+  - `how-to/` — with the first step-by-step instruction for one task: a reader with a task gets the
+    steps without explanations in between;
+  - `reference/` — with the first set of facts people look up by row (API, configuration, CLI): a
+    reference without reasoning stays exact and quick to search;
+  - `explanation/` — with the first document about design and reasons: reasons change rarely and are
+    read once, so they do not crowd the documents used every day.
+- **A glossary entry** has four parts: the term; what it means here; where in the code it lives — a
+  file or an enum by link, with no copy of the values; which word not to use for it. Why: the agent
+  names new code with the project's word instead of inventing a synonym, and a copy of enum values
+  goes stale at the first change. When to propose the glossary: G12.
 - **A README in each top-level code folder.** Why: a person opening the folder immediately sees what
   is in it, where to start and whom to ask. `CLAUDE.md` does not play this role: it is for the agent.
 - **A table of contents with a "when to read" condition.** Why: both people and agents open a document
@@ -75,39 +99,107 @@ Any new document in a recommendation names its **reader** and the **question** i
 explains why the code and existing documents do not answer that question. No such reader, no
 recommendation.
 
-## 4. When an ADR is needed
+## 4. ADRs: propose the practice
 
-An ADR is for a decision that had real alternatives and consequences and that someone will want to
-revisit. The test: if someone asks "why is it like this?" in six months, an ADR is needed. Why this
-matters: without a recorded reason, a person or agent either blindly preserves a decision that has
-become outdated, or "simplifies" it and breaks what it was made for.
+An ADR (architecture decision record) records one decision that had real alternatives and
+consequences. The test: if someone asks "why is it like this?" in six months, an ADR is needed. A
+convention without alternatives is not one: a line in `CLAUDE.md` is enough (section 3).
 
-Signals of a candidate in code and documents:
+**What ADRs give.** In the report, explain this in the project's words, on its example decision:
 
-- `version` / `expectedVersion` fields, 409 responses, retries: optimistic locking;
-- locks with a timeout, leases, keepalive;
-- a foreign key with `RESTRICT` together with a check in a service;
-- a non-standard pattern with a "do not change" warning in the instructions;
-- a dispute in review reports or an MR after which one option was chosen;
-- a "Decision Record" section inside a design doc.
+- the reason survives the people who knew it: without it a person or an agent either blindly
+  preserves a decision that has become outdated, or "simplifies" it and breaks what it was made for;
+- the agent reads the reason before changing the code the decision constrains, instead of guessing
+  it from the code;
+- the next developer learns why, not only what, without asking the author;
+- a reversed decision stays in history: it is marked superseded and a new ADR is written, so nobody
+  brings back a rejected option without knowing why it was rejected.
 
-Where to get candidates, in order:
+**What the audit does.** The audit took no part in the project's decisions and does not invent ADRs.
+Two sources only:
 
-1. **Design docs and specs**: sections "Decision Record", "Alternatives", "Considered and Rejected",
-   "Why …". Especially those the person is about to delete: after deletion the reason is gone.
-2. **Existing documentation** that explains "why". An ADR briefly records the decision and alternatives
-   and links to the document; the document stays.
-3. **Signals in the code**: the list above.
-4. **The person**, if nothing turned up: "which decisions did you choose from several options?".
+- **decisions recorded in specs and design docs** are transferred into ADRs during the audit (below):
+  the reason is already written down, and after a spec is deleted it is gone;
+- **every other decision** is written by the people who make it, starting with the first decision
+  after the audit.
 
-Nygard's format: title, context, decision ("We will…"), status, consequences — all of them, not only
-the good ones. A reversed ADR is not deleted: it is marked superseded and a new one is written. In the
-report, propose 1–3 candidates with a source (`file:line` or the person's answer), not a list of
-hypothetical ones.
+**Always.** The practice is proposed in every report that covers area G; answers about readers
+("I work alone") and the choice of a minimal structure do not cancel it. If the project has no ADR
+practice:
 
-If the project has no ADR practice, propose keeping ADRs even if no candidates turned up: a
-`docs/decisions/` directory, Nygard's template and a line in `CLAUDE.md`: "a decision with
-alternatives gets an ADR in the same MR".
+1. the folder `docs/decisions/`, its own even in a small project: ADRs have
+   continuous numbering and statuses (accepted, superseded by NNNN);
+2. the template `docs/decisions/0000-template.md`, the text below;
+3. a line in the root `CLAUDE.md`: "a decision with alternatives gets an ADR in `docs/decisions/` in
+   the same MR";
+4. one example ADR on a real decision of this project, so the format is seen on familiar material
+   (choosing it: below), unless an ADR transferred from a spec already covers that decision. If no
+   such decision is found, the template alone.
+
+If the project already keeps ADRs (`doc/adr/`, `docs/adr/`, `docs/architecture/decisions/`): no new
+folder, new ones go there and continue its numbering; check the format (CTX-D3) and whether the root
+`CLAUDE.md` has the line.
+
+**Choosing the example.** The most architecturally significant decision the repository shows: one that
+is expensive to reverse and constrains later decisions.
+
+- storage: a document store or a relational DB; the choice of a vector store;
+- the main framework: Django or FastAPI, an agent framework or a hand-written loop;
+- the execution model: a single process, async end to end;
+- the protocol: SSE or WebSocket;
+- an own implementation instead of a ready one, for example an own job queue instead of a library.
+
+The test: "if this changes, how much code and data must be redone?" and "which later decisions were
+made because of it?". Signals:
+
+- dependencies in the manifest, for example a NoSQL client without an SQL driver;
+- services in `docker-compose`;
+- documents that compare options, for example two schema drafts for the same data;
+- prohibitions in the instructions ("run as a single process");
+- an own class on top of a library interface;
+- a "Decision Record" or "Alternatives" section in a design doc.
+
+The example contains only what the repository says, with `file:line`. What it does not say — why this
+option, which alternatives were considered — stays a placeholder for the person:
+`<why this option: fill in>`. The audit does not guess reasons and does not ask for them: the person
+fills them in after the audit.
+
+**Transferring decisions from specs.** Every design doc and spec, kept or about to be deleted (G5):
+sections "Decision Record", "Alternatives", "Considered and Rejected", "Why …" and any choice between
+named options. Each decision with real alternatives becomes one ADR in full, in the template below:
+
+- status "accepted" if the spec is implemented; the date is the spec's date;
+- Context, Decision and Consequences are the spec's words, shortened to 1–3 sentences each; the
+  rejected options are named as the spec names them;
+- the ADR stands on its own: the spec may be deleted, so a link to it is only an addition
+  (`Source: <path>, section <name>`) and only for a spec that is kept or archived;
+- numbering in the order the decisions were made, after the project's last ADR.
+
+What the spec does not say is not added: no guessed reasons, no alternatives it does not name.
+
+### ADR template
+
+Nygard's format: title, status, context, decision, consequences — all of them, not only the good
+ones. A reversed ADR is not deleted: it gets "superseded by NNNN" and a new one is written.
+
+```markdown
+# NNNN. <Decision as a phrase>
+
+- Status: accepted <!-- proposed | accepted | superseded by NNNN -->
+- Date: <YYYY-MM-DD>
+
+## Context
+
+<!-- What forced a decision and which options were on the table. -->
+
+## Decision
+
+We will <…>.
+
+## Consequences
+
+<!-- What becomes easier, what becomes harder, what must not be done now. -->
+```
 
 ## 5. How documentation stays current
 
@@ -127,8 +219,24 @@ sits next to current documentation as an equal.
 
 ## 6. How to present a structure proposal in the report
 
-- A target tree of existing content only: to the right of each file, where the text comes from
-  (`← README.md: API Reference`). New files only with a justification from section 3.
+- A target tree: existing content, to the right of each file where the text comes from
+  (`← README.md: API Reference`), plus the new documents of G5, G6, G7 and G12 marked "new"; other new
+  files only with a justification from section 3.
+- One line: which structure was chosen (folders by type, folders by area) and the sign that decided
+  it (section 2).
+- After the tree, a Mermaid diagram is mandatory: it renders on GitHub and in IDEs. The example is in
+  `report-template.md`.
+  - **Nodes** are the documents of the target structure, within the G10 node threshold
+    (`references/thresholds.md`); past that, one node for a group of files (`docs/how-to/*`).
+  - **Groups** (`subgraph`) are loading classes: "Always in context" — the root `CLAUDE.md`; "On
+    demand" — nested `CLAUDE.md`, rules with `paths`, skills; "Reference" — `README.md`, `docs/`;
+    "Decisions" — `docs/decisions/`.
+  - **Arrows** show where an agent or a person comes to the document from: `README.md` →
+    `docs/how-to/run-locally.md`, the root `CLAUDE.md` → a nested one.
+  - **Colour** (`classDef`) marks a new, a moved and an unchanged document; unchanged ones may keep the
+    default style. Documents being deleted are not on the diagram: they are listed in "What
+    disappears".
+- The folders that do not exist yet: one line each, when to create it and why (section 2).
 - Separately: what disappears entirely and why.
 - Order of work: small MRs, one document at a time; when moving, update links in `CLAUDE.md` and other
   docs in the same MR.
@@ -166,7 +274,69 @@ template must be in git.
 If there are no rules or they are incomplete, the report gets a draft section for this repository. The
 "what changed → which document" table includes only rows for documents that exist in the project or
 are proposed in the target structure; the path in each row is real. Plus ready texts for the
-`CLAUDE.md` line, the `docs.md` rule and the MR template item.
+`CLAUDE.md` line and the `docs.md` rule. The PR/MR template goes into the report in any case, see
+below.
+
+### PR/MR template
+
+**Why.** The template serves not the reader of the documentation but three others:
+
+- the agent writing a PR description. Without a template it decides each time what to write and skips
+  "how it was verified". With `gh pr create --body` the template is not filled in by itself, so a line
+  in `CLAUDE.md` is needed;
+- the next developer: the PR history is the only place that shows what changed and why;
+- the history of decisions when specs are one-off: the spec is deleted, but the PR description with
+  the acceptance criteria and the verification result stays.
+
+**When to propose.** Always, when the repository has a remote (`git remote -v`). In the report write
+only the host (`github.com`, `gitlab.example.com`), never the full URL: it can contain a token
+(`https://oauth2:<token>@…`). A self-hosted GitLab has its own domain: `.gitlab-ci.yml` or `.gitlab/`
+in the repository is the sign. For a host other than GitHub or GitLab, give the same text and say that
+the host's documentation decides the path. Team size and answers about readers do not cancel it. If a
+template exists, check it against the content below instead.
+
+**Path:** GitHub — `.github/pull_request_template.md`; GitLab —
+`.gitlab/merge_request_templates/Default.md`. The file must be in git: check with `git check-ignore`.
+Look for an existing template in any case and folder first:
+`git ls-files | grep -iE 'pull_request_template|merge_request_templates/'`.
+
+**Content.** Short, up to ~15 lines, fitted to this project. The items come from the repository: its
+verification command, its "Ask first" list, its place for ADRs. Checkboxes only for what can be
+checked. An example for a project where specs are one-off, `make check` verifies everything and
+`CLAUDE.md` has an "Ask first" list:
+
+```markdown
+## What and why
+
+<!-- 1–3 sentences. -->
+
+## Task
+
+<!-- Acceptance criteria as given (specs here are one-off, so they live on in this PR),
+     or a link to the issue. -->
+
+## Decisions
+
+<!-- docs/decisions/NNNN-… if a choice between real alternatives was made, otherwise "none". -->
+
+## Verified
+
+- [ ] `make check` passes
+- [ ] Checked in the running app: <what>, or "not needed"
+
+## Needs attention
+
+<!-- Anything from "Ask first" in CLAUDE.md this touches: a paid external call, a public API
+     contract changed (link to the client PR), stored data changed. Otherwise "none". -->
+
+## Docs
+
+<!-- Which documents changed, or "none needed". -->
+```
+
+**Line in the root `CLAUDE.md`:** "A PR description fills `.github/pull_request_template.md`." For
+GitLab: "An MR description fills `.gitlab/merge_request_templates/Default.md`." For another host: the
+same line with the path that host uses.
 
 ## Sources
 

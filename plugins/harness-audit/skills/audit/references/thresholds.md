@@ -14,4 +14,5 @@ A value near a threshold is not a finding but a reason to look at the content.
 | FB-04 | On success, no more than ~20 lines of output; on failure, no more than ~10,000 characters or output to a file | Long output of a failed command is truncated: [Tools reference](https://code.claude.com/docs/en/tools-reference); 20 lines is a synthesis of the research |
 | HK-07 | A synchronous hook on every tool call: an explicit `timeout` (default 600 s); a normal run under 2 s | [Hooks reference](https://code.claude.com/docs/en/hooks); the 2 s threshold is how `/doctor` applied it during calibration |
 | H3 | A third-party repository in "Worth a look": at least 3,000 stars, last change no older than 180 days, not archived | Project decision of 2026-10-31, compared on 9 repositories during calibration |
+| G10 | The structure diagram has no more than ~25 nodes; past that, one node for a group of files | Project decision of 2026-11-07 |
 | CMD-17 | "Verify everything" covers all blocking CI jobs, is silent on success, takes under 10 min | [GitHub Docs](https://docs.github.com/en/copilot/tutorials/coding-agent/get-the-best-results); time as in FB-03 |

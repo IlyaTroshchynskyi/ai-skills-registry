@@ -14,7 +14,9 @@ CYRILLIC = re.compile(r"[А-Яа-яЁё]")
 # check_skills.py must recognise Russian-language skills in the projects it audits.
 ALLOWED_CYRILLIC = ("WHEN_RE", "PERSON_RE", "TOC_RE")
 PRIVATE = re.compile(r"nix-sdlc|harness_development|troshchynskyi|PycharmProjects|IntervAI|crewai-university"
-                     r"|docs/superpowers/plans|calibration\.md|gmail\.com", re.IGNORECASE)
+                     r"|docs/superpowers/plans|calibration\.md|gmail\.com"
+                     r"|ai_assistant_langchain|langchain-assistant|aiobotocore|table-split|relational-schema"
+                     r"|T06\.3|\bM06\b|evals\.md|dynamodb-over", re.IGNORECASE)
 SHIPPED_SUFFIXES = {".md", ".py", ".json"}
 
 

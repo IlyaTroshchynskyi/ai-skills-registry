@@ -7,13 +7,17 @@ Claude Code plugins by Illia Troshchynskyi.
 ```bash
 claude plugin marketplace add IlyaTroshchynskyi/ai-skills-registry
 claude plugin install harness-audit@troshchynskyi-plugins
+claude plugin install decision-debate@troshchynskyi-plugins
 ```
+
+Install only the plugins you need.
 
 ## Plugins
 
 | Plugin | Command | What it does |
 | --- | --- | --- |
 | [harness-audit](plugins/harness-audit) | `/harness-audit:audit` | Audits a repository and your Claude Code setup, then writes a report with evidence-backed recommendations |
+| [decision-debate](plugins/decision-debate) | `/decision-debate:decision-debate` | Works out a solution for a task from several angles: 2–3 options, an architect and an independent critic debate them, and a short report you choose from |
 
 ## Rules
 

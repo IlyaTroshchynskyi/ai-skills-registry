@@ -38,8 +38,14 @@ def marketplace() -> dict:
 def test_marketplace_at_the_repository_root_lists_the_plugin_folder() -> None:
     market, plugin = marketplace(), manifest("plugin.json")
     assert market["name"] and market["owner"]["name"]
-    assert [(p["name"], p["source"]) for p in market["plugins"]] == [(plugin["name"], "./plugins/harness-audit")]
+    assert (plugin["name"], "./plugins/harness-audit") in [(p["name"], p["source"]) for p in market["plugins"]]
     assert re.fullmatch(r"\d+\.\d+\.\d+", plugin["version"])
+
+
+def test_marketplace_lists_every_plugin_folder() -> None:
+    folders = {f"./plugins/{path.name}" for path in (REPOSITORY / "plugins").iterdir()
+               if path.is_dir() and not path.name.startswith((".", "__"))}
+    assert sorted(entry["source"] for entry in marketplace()["plugins"]) == sorted(folders)
 
 
 def test_every_listed_plugin_folder_has_a_manifest() -> None:

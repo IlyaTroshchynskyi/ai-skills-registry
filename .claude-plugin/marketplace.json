@@ -9,6 +9,11 @@
       "name": "harness-audit",
       "source": "./plugins/harness-audit",
       "description": "Audits a repository and a developer's Claude Code setup and delivers evidence-backed recommendations: instructions, verification commands, documentation, skills, rules, hooks, subagents and MCP."
+    },
+    {
+      "name": "decision-debate",
+      "source": "./plugins/decision-debate",
+      "description": "Works out a solution for a development task from several angles: multi-lens research, 2-3 options, an architect vs critic debate with independently verified findings, and a short report you choose from. Manual invocation only."
     }
   ]
 }

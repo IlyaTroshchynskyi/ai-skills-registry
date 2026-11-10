@@ -224,3 +224,6 @@ harness-audit-*.md
 
 # IDE
 .idea/
+
+# Reports of decision-debate runs
+/docs/solutions/

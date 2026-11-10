@@ -63,7 +63,7 @@ The skill speaks and writes the report in the language of your conversation.
 From this folder:
 
 ```bash
-python3 -m pytest tests -p no:cacheprovider
+python3 -B -m pytest tests -p no:cacheprovider
 claude plugin validate . --strict
 claude plugin validate ../.. --strict
 ```

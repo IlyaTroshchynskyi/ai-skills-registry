@@ -1,0 +1,11 @@
+{
+  "name": "decision-debate",
+  "displayName": "Decision Debate",
+  "version": "0.1.0",
+  "description": "Works out a solution for a development task from several angles: multi-lens research, 2-3 options, an architect vs critic debate with independently verified findings, and a short report you choose from. Manual invocation only.",
+  "author": {
+    "name": "Illia Troshchynskyi"
+  },
+  "license": "MIT",
+  "keywords": ["architecture", "solution-design", "design-decision", "critic", "debate", "research"]
+}

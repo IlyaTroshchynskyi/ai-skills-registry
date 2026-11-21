@@ -469,16 +469,30 @@ def test_example_adr_is_one_real_decision_with_placeholders_for_what_is_unknown(
 
 def test_adr_template_text_is_in_the_guide() -> None:
     template = read("docs-guide.md").split("### ADR template")[1].split("## 5.")[0]
-    for s in ["# NNNN.", "- Status:", "## Context", "## Decision", "We will", "## Consequences"]:
+    for s in ["# NNNN.", "- Status:", "## Context", "## Options considered", "## Decision", "## Consequences"]:
         assert s in template, s
+    assert "We will" not in template and "proposed |" not in template
+
+
+def test_specs_live_outside_git_in_every_check_that_names_their_place() -> None:
+    checklist = flat(read("checklist.md"))
+    b1 = checklist.split("**B1.")[1].split("**B2.")[0]
+    assert "gitignored folder (G5)" in b1 and "under version control" not in b1
+    sp07 = flat(read("modules/design-before-code.md")).split("**SP-07.")[1].split("**SP-")[0]
+    assert "outside git" in sp07 and "under version control" not in sp07
+    assert "The one exception is G5: plan files already in git go to the gitignored spec folder." in checklist
+    assert "Question 4 never discards the G5 advice" in flat(read("references/subagents.md"))
+    assert "the answers from step 6. Discarded" in flat(read("SKILL.md"))
 
 
 def test_deleted_specs_get_a_transfer_table_instead_of_an_archive() -> None:
     g5 = flat(read("checklist.md").split("**G5.")[1].split("**G6.")[0])
-    for s in ["do not propose `docs/archive/`", "| Spec | ADRs from it", "then deletion, in one PR"]:
+    for s in ["there is no `docs/archive/`", "| Spec | ADRs from it", "then deletion, in one PR",
+              "never reach git"]:
         assert s in g5, s
+    assert "keep or archive" not in g5
     template = flat(docs_template())
-    assert "| Spec | ADRs from it" in template and "in one PR" in template
+    assert "| Spec | ADRs from it" in template and "in one PR" in template and "no `docs/archive/`" in template
 
 
 def test_specs_are_moved_and_deleted_one_pr_per_spec() -> None:
@@ -512,34 +526,59 @@ def test_mermaid_example_sets_a_text_colour_for_dark_themes() -> None:
 def test_glossary_has_a_place_a_check_and_a_report_slot() -> None:
     assert_ids("checklist.md", ["G12"])
     guide = flat(read("docs-guide.md").split("## 2.")[1].split("## 3.")[0])
-    for s in ["`glossary.md`", "where in the code", "which word not to use"]:
+    for s in ["`docs/glossary.md`", "where in the code", "which word not to use", "One glossary for the whole project"]:
         assert s in guide, s
     g12 = flat(read("checklist.md").split("**G12.")[1])
-    for s in ["Always", "whatever the number of terms", "one word per concept", "stage and size",
+    assert "grouped by subject area" not in g12
+    for s in ["Always", "one for the whole project, whatever the number of terms", "one word per concept", "stage and size",
               "No terms found", "`docs/glossary.md` — read before naming a new domain thing", "enums"]:
         assert s in g12, s
-    for gone in ["threshold G12", "fewer such terms", "Do not propose it"]:
+    for gone in ["threshold G12", "fewer such terms", "Do not propose it", "the file with the entry format"]:
         assert gone not in g12, gone
+    for s in ["at least one term is found", "no file: an empty table is a placeholder",
+              "one invented entry marked as an example"]:
+        assert s in g12, s
     template = flat(docs_template().split("### Documentation rules")[0])
     for s in ["Glossary: always", "`file:line`", "stage and size"]:
         assert s in template, s
     assert "why a glossary is not needed" not in template
 
 
-def test_type_folders_appear_with_their_first_document() -> None:
+def test_area_folders_replace_type_folders() -> None:
     guide = flat(read("docs-guide.md").split("## 2.")[1].split("## 3.")[0])
-    for s in ["Folders by type from the first document", "there is no flat `docs/`", "`docs/<area>/…`",
-              "Folders that do not exist yet", "`how-to/` —", "`reference/` —", "`explanation/` —"]:
+    for s in ["Folders by area, not by type", "`docs/<area>/`", "Pages that do not exist yet",
+              "a task page sits in `docs/`", "there is no `archive/`", "never reach git"]:
         assert s in guide, s
-    for gone in ["all three", "will not grow", "document threshold", "In a flat `docs/`", "small project"]:
+    for gone in ["Folders by type from the first document", "there is no flat `docs/`", "`how-to/` —",
+                 "`explanation/` —", "Folders that do not exist yet"]:
         assert gone not in guide, gone
     proposal = flat(read("docs-guide.md").split("## 6.")[1].split("## 7.")[0])
-    assert "flat `docs/`" not in proposal and "folders that do not exist yet" in proposal
+    assert "pages that do not exist yet" in proposal and "folders by type" not in proposal
     template = flat(docs_template())
-    assert "Structure chosen" in template and "Folders for later" in template
-    assert "flat `docs/`" not in template
+    assert "Area folders:" in template and "Pages for later" in template
+    assert "Structure chosen" not in template and "how-to/" not in template
     consent = flat(read("references/consent.md"))
     assert "Will the project grow" not in consent and "flat" not in consent
+
+
+def markdown_block_after(text: str, marker: str) -> str:
+    block = text.split(marker)[1].split("```markdown\n")[1].split("```")[0]
+    return "\n".join(line[2:] if line.startswith("  ") else line for line in block.splitlines()).strip()
+
+
+def test_layout_domain_page_and_adr_are_copies_of_the_docs_keeper_template() -> None:
+    template = (SKILL_DIR.parents[2] / "docs-keeper" / "references" / "docs-template.md").read_text(encoding="utf-8")
+    guide = read("docs-guide.md")
+
+    def rows(text: str) -> list[str]:
+        table = text.split("| File | Needed when | Holds |")[1].split("\n\n")[0]
+        return [line for line in table.splitlines() if line.startswith("|")]
+
+    assert rows(guide.split("## 2.")[1]) == rows(template.split("## Layout")[1])
+    assert markdown_block_after(guide, "**A domain page**") == markdown_block_after(template, "**Domain page**")
+    assert markdown_block_after(guide, "### ADR template") == markdown_block_after(template, "**Decision**")
+    assert "copies of the docs-keeper plugin's documentation template" in flat(guide)
+    assert "A copy of the decision format in the docs-keeper plugin's documentation template" in flat(guide)
 
 
 def test_target_tree_shows_the_new_documents_the_audit_proposes() -> None:
@@ -635,22 +674,13 @@ def test_pr_template_is_one_recommendation_under_g11_that_respects_an_existing_o
     assert "always, even if the rules are complete" not in g11
 
 
-def test_documentation_questions_are_asked_with_consent_before_the_checks() -> None:
+def test_nobody_is_asked_what_to_do_with_specs() -> None:
     consent = flat(read("references/consent.md"))
-    for s in ["What do you do with specs and design docs after implementation", "only if area G is checked",
-              "found specs or design docs", "Open questions"]:
-        assert s in consent, s
-    step3 = flat(steps_section().split("3. **")[1].split("4. **")[0])
-    assert "documentation questions" in step3
-    step4 = flat(steps_section().split("4. **")[1].split("5. **")[0])
-    assert "answers to the documentation questions" in step4
-    step6 = flat(steps_section().split("6. **")[1].split("7. **")[0])
-    assert "What do you do with specs" not in step6 and "Will the project grow" not in step6
-    assert "asked at step 3" in step6
-    area = flat(read("references/subagents.md").split("## Area check")[1].split("## Recheck")[0])
-    assert "answers to the step 3 questions" in area
-    recheck = flat(read("references/subagents.md").split("## Recheck")[1])
-    assert "answers at step 3 or step 6" in recheck and "Answers at step 3:" in recheck
+    assert "What do you do with specs" not in consent and "There is no question about specs" in consent
+    steps = flat(steps_section())
+    assert "documentation questions" not in steps and "What do you do with specs" not in steps
+    subagents = flat(read("references/subagents.md"))
+    assert "step 3 questions" not in subagents and "Answers at step 3:" not in subagents
     g5 = flat(read("checklist.md").split("**G5.")[1].split("**G6.")[0])
-    assert "answer at step 3" in g5 and "step 6" not in g5
-    assert "(step 3)" in flat(docs_template()) and "(step 6)" not in flat(docs_template())
+    assert "step 3" not in g5 and "step 6" not in g5
+    assert "(step 3)" not in flat(docs_template()) and "(step 6)" not in flat(docs_template())

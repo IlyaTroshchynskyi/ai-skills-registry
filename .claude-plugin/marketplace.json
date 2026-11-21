@@ -14,6 +14,11 @@
       "name": "decision-debate",
       "source": "./plugins/decision-debate",
       "description": "Works out a solution for a development task from several angles: multi-lens research, 2-3 options, an architect vs critic debate with independently verified findings, and a short report you choose from. Manual invocation only."
+    },
+    {
+      "name": "docs-keeper",
+      "source": "./plugins/docs-keeper",
+      "description": "Keeps a repository's documentation true. After a code change it finds every document the change touched, fixes what became false with the smallest edit, and reports what it left alone."
     }
   ]
 }

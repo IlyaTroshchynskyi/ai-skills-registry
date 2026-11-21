@@ -80,8 +80,9 @@ command.
 
 ## What to remove
 
-Content derivable from code in `CLAUDE.md`, rules a linter or hook duplicates, unused skills, agents,
-plugins, MCP servers: with evidence and the label "in repo" / "personal".
+Content derivable from code in `CLAUDE.md` and in other documents (G3), rules a linter or hook
+duplicates, unused skills, agents, plugins, MCP servers: with evidence and the label "in repo" /
+"personal".
 
 ## Checked and fine
 
@@ -92,7 +93,7 @@ ID — one line of evidence.
 | Document | Diátaxis type (convention) | Problem | What to do and why |
 | --- | --- | --- | --- |
 
-Structure chosen: <folders by type / folders by area> — <the sign that decided it>.
+Area folders: <the areas that get a folder of their own, or "none"> — <why: more than one page>.
 
     <target tree; to the right of each file, where the text comes from: ← README.md: API Reference>
 
@@ -111,7 +112,7 @@ flowchart LR
     T[tests/CLAUDE.md]
   end
   subgraph reference[Reference]
-    README[README.md] --> RUN[docs/how-to/run-locally.md]
+    README[README.md] --> RUN[docs/run-locally.md]
     README --> GLOSSARY[docs/glossary.md]
   end
   subgraph decisions[Decisions]
@@ -126,13 +127,13 @@ flowchart LR
   class RUN,LG,T moved
 ```
 
-Folders for later: for each type folder with no document yet, one line: when to create it and why
-(`docs-guide.md`, section 2).
+Pages for later: for each layout row whose condition holds and which has no document yet, one line:
+what to create and why (`docs-guide.md`, section 2).
 
 What disappears entirely and why.
 
-If the person deletes specs after implementation (step 3), no `docs/archive/`; instead, one row per
-spec:
+Specs, plans and design docs (G5): no `docs/archive/`; one row per spec, and then the file is
+deleted:
 
 | Spec | ADRs from it (numbers) | Description of working behavior → which document | What to drop |
 | --- | --- | --- | --- |
@@ -151,8 +152,10 @@ example: no architecturally significant decision found". If the project already 
 fix in them.
 
 Glossary: always, unless one exists (G12): the entries found, each with `file:line`, what it means
-and the word not to use; how many depends on the project's stage and size; no terms found → the
-file with the entry format and the line for `CLAUDE.md`. If one exists: what to fix in it.
+and the word not to use; how many depends on the project's stage and size. No terms found → no file:
+"no glossary yet: no project terms found", then how to start it when the first term appears: the
+entry format, one invented entry marked as an example, and the line for `CLAUDE.md`. If one exists:
+what to fix in it.
 
 ### Documentation rules
 

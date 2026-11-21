@@ -132,9 +132,7 @@ With no argument: all areas. With arguments: only the named ones, separated by s
    commands and scripts, rules and prohibitions, hooks and permissions, what is ignored, section
    headings. Subagents work from the digest and open a file only for a specific line.
 3. **Consent.** One message using the template in `references/consent.md`; wait for the answer. With
-   arguments, only the items the named areas need. The same message carries the documentation
-   questions group G needs before its check (what happens to specs after implementation), only when
-   the step 2 inventory makes them matter. Then do what was allowed:
+   arguments, only the items the named areas need. Then do what was allowed:
    - `prompt-audit` and `/insights` data — `modules/history.md`;
    - project commands — through `scripts/run_command.py`, with the timeouts from
      `references/consent.md`;
@@ -144,7 +142,7 @@ With no argument: all areas. With arguments: only the named ones, separated by s
    `references/subagents.md`, one group of areas per subagent. Give them the skill directory
    (`${CLAUDE_SKILL_DIR}`), the text of their items from the area file (not a path to the file), the
    profile, the inventory, the shared-files digest, the mechanical check results from step 2 and
-   everything collected at step 3, including the answers to the documentation questions. For group G
+   everything collected at step 3. For group G
    the subagent reads `docs-guide.md` first. Do not set
    `model` here or at steps 5 and 7: subagents inherit the model of the person's session, so someone
    working on Sonnet gets the audit on Sonnet.
@@ -173,15 +171,12 @@ With no argument: all areas. With arguments: only the named ones, separated by s
    Typical questions:
    - Who reads the documentation besides developers with an agent: QA, content authors, operations,
      external API consumers? This decides whether how-tos and references for people are needed.
-   - Do people carry out procedure X without an agent? If not, it belongs in a skill, not in
-     `docs/how-to/`.
+   - Do people carry out procedure X without an agent? If not, it belongs in a skill, not in a task
+     page in `docs/`.
    - Is part of the documentation kept outside the repository (wiki, another repository), and where?
      Then a link is needed here, not a copy.
-   - Does document X describe current behavior or a plan? This decides whether to update, archive or
-     delete it.
-   - What happens to specs after implementation is asked at step 3 (`references/consent.md`): the
-     group G check needs it. Ask again here only if it went unanswered there and still changes a
-     recommendation.
+   - Does document X describe current behavior or a plan? This decides whether to update it or to
+     move its decisions and behaviour out and delete it (G5).
    - Do tasks take longer than one session? B3 depends on this.
    - What work do you do for the agent, or not trust it with? These are needs for finding skills and
      MCP. Search for a new need that did not exist at step 4 yourself with
@@ -192,7 +187,7 @@ With no argument: all areas. With arguments: only the named ones, separated by s
    `run_command.py`) or session data (`/insights`, `/skill-doctor`, `/doctor`) are measurements: do
    not give them to the subagent, compare them yourself with the "Never recommend" list, with
    `references/applicability.md` and with the answers from steps 3 and 6. Together with the findings,
-   pass the data collected at steps 2–3 and the answers from steps 3 and 6. Discarded findings stay
+   pass the data collected at steps 2–3 and the answers from step 6. Discarded findings stay
    out of the report.
 8. **Priorities and report.**
    - **Priorities.** Three groups: quick (up to an hour, no approval), medium, needs approval. Within
@@ -226,7 +221,7 @@ With no argument: all areas. With arguments: only the named ones, separated by s
 | Inventing ADRs for decisions whose reason is not written down | Transfer only what specs and design docs record; for the rest propose the practice: folder, template, `CLAUDE.md` line, one example |
 | Leaving decisions recorded in specs for later | Transfer them into ADRs in the report during the audit: after the spec is deleted the reason is gone |
 | Not proposing ADRs, a glossary, a PR template or `docs/README.md` because the person works alone or chose the minimal structure | The agent and the next developer read them. A minimal structure cuts folders, not these artifacts |
-| Empty tutorials / how-to / reference folders | A folder appears together with its first document |
+| Empty folders, or a page for a layout row whose condition does not hold | A folder appears together with its first document; the ADR template counts as one (G6) |
 | Duplicates judged by headings alone | Compare the text; otherwise write "compared by headings" |
 | Asking what is in the repository | Check yourself first; ask only if there is no answer |
 | Only adding things | Excess instructions and unused skills go to "What to remove"; "nothing to add" is a valid result |

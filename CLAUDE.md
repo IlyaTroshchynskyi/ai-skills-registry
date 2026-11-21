@@ -8,11 +8,13 @@ A Claude Code plugin marketplace (`troshchynskyi-plugins`, defined in `.claude-p
 plus `rules/`, rule files that people copy into their own projects' `.claude/rules/`. This repository
 does not load `rules/` itself (it has no `.claude/`): they are a deliverable, like the plugins.
 
-There are two plugins, each with one skill:
+There are three plugins, each with one skill:
 
 - `plugins/harness-audit/`: skill `audit`, run as `/harness-audit:audit [areas]`.
 - `plugins/decision-debate/`: skill `decision-debate`, run as `/decision-debate:decision-debate
   <question>`.
+- `plugins/docs-keeper/`: skill `update`, run as `/docs-keeper:update [base ref]`, and started by
+  Claude at the end of a task that changed code.
 
 Installing a plugin copies only its folder, so a plugin must be self-contained, license files included.
 
@@ -28,6 +30,13 @@ claude plugin validate ../.. --strict
 ```
 
 From `plugins/decision-debate/`:
+
+```bash
+python3 -B -m pytest tests -p no:cacheprovider
+claude plugin validate . --strict
+```
+
+From `plugins/docs-keeper/`:
 
 ```bash
 python3 -B -m pytest tests -p no:cacheprovider
@@ -87,6 +96,23 @@ in the final proposal among the working files. Roles, each a subagent in `agents
 - `README.md` keeps the sources behind the design ("Why it works this way"). A change that contradicts
   one of them needs a new source there.
 
+## How the docs-keeper skill is built
+
+`plugins/docs-keeper/skills/update/SKILL.md` takes a finished code change and brings the documents in
+line with it: 8 numbered steps from the scope of the diff to a short report. Unlike the other two
+skills, Claude may start it without the user, so its `description` carries the trigger.
+
+- `scripts/scan_docs.py` is one stdlib-only file with two subcommands, run as
+  `python3 -I ${CLAUDE_SKILL_DIR}/scripts/scan_docs.py`. `impact` picks the change and reports names
+  that left the code and files that were removed or renamed, with every document line that still
+  mentions them. `links` checks relative links, anchors and backticked paths, and finds orphans. It
+  gives each document a kind (`living`, `instructions`, `generated`, `decision`, `changelog`,
+  `archive`); `SKILL.md` names the same kinds and a test compares them.
+- `references/docs-template.md` sits at the plugin root, not in the skill, because every skill of
+  the plugin shares it: `SKILL.md` reaches it through `${CLAUDE_PLUGIN_ROOT}`. It is the one layout
+  for any repository, with `CLAUDE.md` as the agent's entry file.
+- `README.md` keeps the sources behind the design ("Why it works this way").
+
 ## Tests are a contract on the prose
 
 `plugins/harness-audit/tests/test_skill_content.py` asserts that exact phrases appear inside specific
@@ -102,6 +128,10 @@ Cross-file contracts:
 - Documentation thresholds are numbers in `references/thresholds.md` only, never in `checklist.md`,
   `docs-guide.md` or the report template.
 - Every `modules/…`, `references/…` and `scripts/…` path in backticks in `SKILL.md` must exist.
+- The Layout table, the domain page format and the decision (ADR) format in
+  `plugins/docs-keeper/references/docs-template.md` are copied into sections 2 and 4 of
+  `plugins/harness-audit/skills/audit/docs-guide.md`, so both plugins recommend one layout and one
+  ADR: change both together. A harness-audit test compares them.
 
 `plugins/harness-audit/tests/test_package.py` guards what gets published, for that plugin and the
 repository root:
@@ -123,7 +153,7 @@ Markdown prose wraps at 105 columns; tables and frontmatter do not wrap.
 - Plugin: `plugins/<name>/` with its own `.claude-plugin/plugin.json` and license files, listed in
   `.claude-plugin/marketplace.json` and the root README, with no `marketplace.json` of its own. A test in
   harness-audit fails when a folder in `plugins/` is missing from the marketplace. Give the plugin its
-  own `tests/test_package.py` for its manifests, language and privacy, as decision-debate does: the
-  `PRIVATE` regex is copied in each, so change all copies together.
+  own `tests/test_package.py` for its manifests, language and privacy, as decision-debate and
+  docs-keeper do: the `PRIVATE` regex is copied in each, so change all copies together.
 - Rule: a file in `rules/` plus a row in the root README table. Language rules (`naming-python.md`,
   `naming-js.md`) use `paths:` frontmatter and extend `naming.md`.

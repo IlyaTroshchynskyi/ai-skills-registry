@@ -38,9 +38,9 @@ Check whether the project is ready for it. Common prerequisites of any spec-driv
 - **SP-05. A working, targeted and fast test command.** One file or test can be run (CMD-07), and the
   full suite is not too long. Without this, "run it, it should fail / pass" steps cannot be verified,
   and a slow suite multiplies the cost of every task.
-- **SP-07. A place for specs under version control.** If specs are kept, the path is set in the
-  instructions imperatively and concretely. A soft wish ("specs are better placed in…") loses to a path
-  hard-coded in the framework's skill. If specs are disposable, that is written down (B1).
+- **SP-07. A set place for specs outside git.** The path of the gitignored spec folder (G5) is set in
+  the instructions imperatively and concretely. A soft wish ("specs are better placed in…") loses to a
+  path hard-coded in the framework's skill.
 
 Only for Superpowers:
 

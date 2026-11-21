@@ -8,6 +8,7 @@ Claude Code plugins by Illia Troshchynskyi.
 claude plugin marketplace add IlyaTroshchynskyi/ai-skills-registry
 claude plugin install harness-audit@troshchynskyi-plugins
 claude plugin install decision-debate@troshchynskyi-plugins
+claude plugin install docs-keeper@troshchynskyi-plugins
 ```
 
 Install only the plugins you need.
@@ -18,6 +19,7 @@ Install only the plugins you need.
 | --- | --- | --- |
 | [harness-audit](plugins/harness-audit) | `/harness-audit:audit` | Audits a repository and your Claude Code setup, then writes a report with evidence-backed recommendations |
 | [decision-debate](plugins/decision-debate) | `/decision-debate:decision-debate` | Works out a solution for a task from several angles: 2–3 options, an architect and an independent critic debate them, and a short report you choose from |
+| [docs-keeper](plugins/docs-keeper) | `/docs-keeper:update` | Updates the documentation after a code change: fixes what became false, leaves records and history alone, and says so when nothing needs changing |
 
 ## Rules
 

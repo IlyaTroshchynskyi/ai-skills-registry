@@ -37,52 +37,123 @@ or working?
 
 **Why this matters.** A document that mixes types serves every reader badly at once: a newcomer
 drowns in reference tables, an experienced reader cannot find the row among explanations. The more
-types in one file, the faster it grows and goes stale. The exception is a document about one feature:
-its design and a short reference can live together until the reference part grows.
+types in one file, the faster it grows and goes stale. The exception is a domain page (section 2): it
+explains one domain, holds the steps for its repeated changes and links to its reference, runbooks and
+decisions.
 
 ## 2. What lives where
 
-| Place                | What is inside                                         | How to name the file                  |
-| -------------------- | ------------------------------------------------------ | ------------------------------------- |
-| `README.md` (root)   | What this is, quick start, links onward                | —                                     |
-| `README.md` in a folder | What is in the folder, which files to start with, who owns it | —                              |
-| `docs/README.md`     | Table of contents "file — when to read"                | —                                     |
-| `getting-started.md` | The only tutorial                                      | `tutorials/` from the second tutorial |
-| `how-to/`            | One task, one file                                     | Verb + object: `add-x.md`             |
-| `reference/`         | Facts that are not in the code or cannot be read there | Noun: `api.md`                        |
-| `explanation/`       | Design and reasons; one complex feature, one file      | Topic: `authorization.md`             |
-| `decisions/`         | ADRs                                                   | `NNNN-decision-as-a-phrase.md`        |
-| `glossary.md`        | Domain and project terms                               | `docs/glossary.md`, unless one exists (G12) |
-| `runbooks/`          | Symptom → diagnosis → action                           | Symptom: `backend-returns-5xx.md`     |
-| `archive/`           | Implemented design docs and specs the person keeps (G5) | Date + topic                         |
-| `generated/`         | References built by a script from the code             | Marked "generated, do not edit"       |
+The layout and the domain page below are copies of the docs-keeper plugin's documentation template,
+so an audit and that plugin recommend the same thing. A test keeps the copies equal: change both
+together.
+
+| File | Needed when | Holds |
+| --- | --- | --- |
+| `README.md` | always | what this is, why and its status, quick start, links onward |
+| `CLAUDE.md` | always | commands, non-obvious rules, traps; the index through `@docs/README.md` |
+| `docs/README.md` | `docs/` exists | the index: each document and when to read it; then how to maintain the docs |
+| `README.md` in a code folder | the repository has several top-level code folders | what is in the folder, where to start, a map of its modules, who owns it |
+| `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md` | the project is public; a private one names an owner and a contact in the README | files, or README sections in a small project |
+| `CHANGELOG.md` | the project has releases | changes users can see, `Unreleased` on top |
+| `docs/architecture.md` | several deployable parts, or external systems it depends on | context, the main parts and how they talk; diagrams as text |
+| `docs/<domain>.md` | a part of the code has states, rules or contracts spread over several files | one domain, in the sections of the domain page format; links for the rest |
+| `docs/<area>/` | one area has two or more pages, such as billing: invoices and refunds | those pages; while the area has one page it is the file `docs/<area>.md`, and the folder appears in the change that splits it |
+| `docs/<task>.md` | people repeat a task that is part of no single domain, such as setting up locally, running the tests, a release | the steps as commands to copy, and how to check it worked; a task inside one domain goes to "Changing it" on its domain page, and one only the agent carries out is a skill |
+| `docs/decisions/NNNN-title.md` | a choice that is costly, risky or contested | one decision per file |
+| `docs/reference/` | an outside interface has facts a person writes and no script can produce | those facts, looked up by row |
+| `docs/generated/` | a script writes reference documents: CLI, configuration, schema, API | the script's output; never edited by hand |
+| `docs/runbooks/` | the system is operated | one procedure per file, named after the symptom, each with an owner |
+| `docs/glossary.md` | `docs/` exists | one for the whole project: a table of the term, what it means here, where in the code, the word not to use |
+| `docs/tutorials/` | newcomers have to be taught | a first experience, step by step |
+| nested `CLAUDE.md` | a top-level folder has its own stack and conventions; elsewhere, rarely: a directory has rules an agent would break on its first edit | that folder's conventions and traps, each rule with what to do instead; no documentation |
+| `AGENTS.md` | other coding agents work in the repository | the shared text; `CLAUDE.md` then imports it with `@AGENTS.md` and adds what only Claude needs |
 
 Rules:
 
 - **Do not propose empty folders.** A folder appears together with a document. Why: an empty
   structure gives the reader nothing and creates the appearance of order.
-- **Folders by type from the first document.** `how-to/`, `reference/` and `explanation/` appear as
-  soon as the target structure has one document of that type: there is no flat `docs/`. With several
-  subject areas or services, folders by area (`docs/<area>/…`) with the same type folders inside.
-  `docs/README.md`, `docs/glossary.md` and `docs/decisions/` stay where they are in every case. Why:
-  the path shows the type before the file is opened, and a folder added later means moving every file
-  and fixing every link.
-- **Folders that do not exist yet.** For each type the target structure has no document of, the report
-  says in one line when to create its folder and why:
-  - `how-to/` — with the first step-by-step instruction for one task: a reader with a task gets the
-    steps without explanations in between;
-  - `reference/` — with the first set of facts people look up by row (API, configuration, CLI): a
-    reference without reasoning stays exact and quick to search;
-  - `explanation/` — with the first document about design and reasons: reasons change rarely and are
-    read once, so they do not crowd the documents used every day.
-- **A glossary entry** has four parts: the term; what it means here; where in the code it lives — a
-  file or an enum by link, with no copy of the values; which word not to use for it. Why: the agent
-  names new code with the project's word instead of inventing a synonym, and a copy of enum values
-  goes stale at the first change. When to propose the glossary: G12.
+- **Folders by area, not by type.** A domain gets one page, `docs/<domain>.md`. When an area gets a
+  second page, its pages move into `docs/<area>/` in one change, links included. The only type folders
+  are `decisions/`, `reference/`, `generated/`, `runbooks/` and `tutorials/`: a task page sits in
+  `docs/` under the task's name, and the explanation of a domain is its domain page. Why: a reader
+  looks for a subject, not a genre, and the path names the subject before the file is opened.
+- **Pages that do not exist yet.** For each layout row whose condition holds and which has no
+  document, the report says in one line what to create and why: the reader and the question it
+  answers. A row whose condition does not hold gets nothing.
+- **Specs, plans and design docs are not documentation.** Their decisions become ADRs (section 4),
+  the behaviour they describe goes to its domain page, and then the file is deleted: git keeps it, so
+  there is no `archive/`. A project that writes a spec or a plan for each feature keeps them in a
+  gitignored folder, with a rule that they never reach git. Why: agents quote an outdated spec as if
+  it were current.
+- **A domain page** has fixed section names, so a script can tell which ones exist; a section with a
+  condition exists only when the code meets it, and each invariant names the check that holds it. An
+  existing page gets these names in the section a change next edits: recommend the names, not a
+  rewrite of every page.
+
+  ```markdown
+  # <The domain, as the code names it>
+
+  ## Purpose
+  What it does, for whom, and what it deliberately does not do. One or two sentences.
+
+  ## Where it lives
+  Its directories and two or three entry points, by exact name.
+
+  ## Contracts
+  Who calls it and what it calls, one line each, with a link to the reference.
+
+  ## Flows
+  One to three main scenarios, as steps or as Mermaid.
+
+  ## Statuses
+  <!-- the code has a status enum, or a column with a fixed set of values -->
+  Each status as the code spells it, which ones are final, what moves an item between them, how it
+  fails and how it is cancelled.
+
+  ## Queue and retries
+  <!-- the code has a queue consumer or a background job -->
+  Delivery, idempotency, the retry policy in words, where failed jobs end up. Numbers stay in settings.
+
+  ## External services
+  <!-- the code has a client or an SDK of another service -->
+  For each one: the timeout, who retries, what happens while it is down.
+
+  ## Model calls
+  <!-- the code imports an LLM SDK, names a model or keeps prompt files -->
+  Which model and where the prompts live, token and cost limits, how the output is checked, the evals,
+  the fallback, what data leaves.
+
+  ## Settings
+  <!-- the code reads settings from the environment or a settings class -->
+  Which settings change behaviour and how they interact. Values live in the reference or the code.
+
+  ## Invariants and traps
+  What must stay true, why, and the check that holds it. What looks right here and is wrong.
+
+  ## Changing it
+  <!-- people repeat a change in this domain, such as adding a type or a provider -->
+  The steps for each repeated change.
+
+  ## Operations
+  <!-- the domain runs in production: deploy files or alert rules exist -->
+  How to tell it works, its known failures, links to the runbooks.
+  ```
+
+  Never on a domain page: lists of files or classes, signatures, copied values or defaults, a
+  function retold step by step, a list of terms of its own (they go to the glossary).
+
+- **One glossary for the whole project.** A domain page or an area folder keeps no list of terms of
+  its own: it uses the glossary's words. A glossary entry has four parts: the term; what it means
+  here; where in the code it lives — a file or an enum by link, with no copy of the values; which
+  word not to use for it. Why: the agent names new code with the project's word instead of inventing
+  a synonym, and a copy of enum values goes stale at the first change. When to propose the glossary:
+  G12.
 - **A README in each top-level code folder.** Why: a person opening the folder immediately sees what
-  is in it, where to start and whom to ask. `CLAUDE.md` does not play this role: it is for the agent.
+  is in it, where to start and whom to ask. A map of its modules fits; a list of files does not.
+  `CLAUDE.md` does not play this role: it is for the agent.
 - **A table of contents with a "when to read" condition.** Why: both people and agents open a document
-  only if they recognize their task in the link; a description of the content does not give that.
+  only if they recognize their task in the link; a description of the content does not give that. The
+  root `CLAUDE.md` imports it with `@docs/README.md`, so people and the agent read one copy.
 
 ## 3. What NOT to propose as a separate document
 
@@ -169,36 +240,37 @@ sections "Decision Record", "Alternatives", "Considered and Rejected", "Why …"
 named options. Each decision with real alternatives becomes one ADR in full, in the template below:
 
 - status "accepted" if the spec is implemented; the date is the spec's date;
-- Context, Decision and Consequences are the spec's words, shortened to 1–3 sentences each; the
+- each section is the spec's words, shortened to 1–3 sentences; under "Options considered" the
   rejected options are named as the spec names them;
-- the ADR stands on its own: the spec may be deleted, so a link to it is only an addition
-  (`Source: <path>, section <name>`) and only for a spec that is kept or archived;
+- the ADR stands on its own and does not link to the spec: the spec is deleted or never reaches git
+  (G5), so the link would lead nowhere;
 - numbering in the order the decisions were made, after the project's last ADR.
 
 What the spec does not say is not added: no guessed reasons, no alternatives it does not name.
 
 ### ADR template
 
-Nygard's format: title, status, context, decision, consequences — all of them, not only the good
-ones. A reversed ADR is not deleted: it gets "superseded by NNNN" and a new one is written.
+A copy of the decision format in the docs-keeper plugin's documentation template; a test keeps the
+copies equal. Nygard's sections plus the options considered, and all consequences, not only the good
+ones. A reversed ADR is not deleted: its status becomes "superseded by NNNN" and a new one is written.
 
 ```markdown
-# NNNN. <Decision as a phrase>
+# NNNN. <The decision as a phrase>
 
-- Status: accepted <!-- proposed | accepted | superseded by NNNN -->
-- Date: <YYYY-MM-DD>
+- Status: accepted | superseded by [NNNN](NNNN-title.md)
+- Date: YYYY-MM-DD
 
 ## Context
+What forced a choice. Facts, not the answer.
 
-<!-- What forced a decision and which options were on the table. -->
+## Options considered
+At least two real ones, each with what it costs.
 
 ## Decision
-
-We will <…>.
+What was chosen, and why it beat the other options.
 
 ## Consequences
-
-<!-- What becomes easier, what becomes harder, what must not be done now. -->
+What gets easier, what gets harder, what is now ruled out: the bad ones too.
 ```
 
 ## 5. How documentation stays current
@@ -222,21 +294,20 @@ sits next to current documentation as an equal.
 - A target tree: existing content, to the right of each file where the text comes from
   (`← README.md: API Reference`), plus the new documents of G5, G6, G7 and G12 marked "new"; other new
   files only with a justification from section 3.
-- One line: which structure was chosen (folders by type, folders by area) and the sign that decided
-  it (section 2).
+- One line: which areas get a folder of their own and why (section 2).
 - After the tree, a Mermaid diagram is mandatory: it renders on GitHub and in IDEs. The example is in
   `report-template.md`.
   - **Nodes** are the documents of the target structure, within the G10 node threshold
-    (`references/thresholds.md`); past that, one node for a group of files (`docs/how-to/*`).
+    (`references/thresholds.md`); past that, one node for a group of files (`docs/<area>/*`).
   - **Groups** (`subgraph`) are loading classes: "Always in context" — the root `CLAUDE.md`; "On
     demand" — nested `CLAUDE.md`, rules with `paths`, skills; "Reference" — `README.md`, `docs/`;
     "Decisions" — `docs/decisions/`.
   - **Arrows** show where an agent or a person comes to the document from: `README.md` →
-    `docs/how-to/run-locally.md`, the root `CLAUDE.md` → a nested one.
+    `docs/run-locally.md`, the root `CLAUDE.md` → a nested one.
   - **Colour** (`classDef`) marks a new, a moved and an unchanged document; unchanged ones may keep the
     default style. Documents being deleted are not on the diagram: they are listed in "What
     disappears".
-- The folders that do not exist yet: one line each, when to create it and why (section 2).
+- The pages that do not exist yet: one line each, what to create and why (section 2).
 - Separately: what disappears entirely and why.
 - Order of work: small MRs, one document at a time; when moving, update links in `CLAUDE.md` and other
   docs in the same MR.
@@ -264,18 +335,19 @@ Where the rules should live and how each reader reaches them:
 | Who                       | Where                                                                      | Why                                                       |
 | ------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------- |
 | A person                  | A "How to maintain documentation" section in `docs/README.md`; an item in the MR template | The entry to the documentation; a reminder at MR time |
-| An agent changing code    | One line in the root `CLAUDE.md` linking to the section                    | The root file always loads and survives compaction        |
+| An agent changing code    | `@docs/README.md` in the root `CLAUDE.md`: the import brings in the index and the rules | The root file always loads and survives compaction; one copy for people and the agent |
 | An agent editing docs     | `.claude/rules/docs.md` with `paths` on `docs/**/*.md` and `**/README.md`  | An addition: loads when working with docs, gone after compaction |
 
-The full text of the rules lives only in `docs/README.md`. `CLAUDE.md` and the rule link to it and
-repeat at most the three most important items: two full copies will diverge. The rule and the MR
+The full text of the rules lives only in `docs/README.md`. The root `CLAUDE.md` imports it and the
+rule links to it; neither repeats it, because two copies will diverge. The import is always in
+context, so `docs/README.md` holds the index and the rules and nothing else. The rule and the MR
 template must be in git.
 
 If there are no rules or they are incomplete, the report gets a draft section for this repository. The
 "what changed → which document" table includes only rows for documents that exist in the project or
-are proposed in the target structure; the path in each row is real. Plus ready texts for the
-`CLAUDE.md` line and the `docs.md` rule. The PR/MR template goes into the report in any case, see
-below.
+are proposed in the target structure; the path in each row is real. Plus the `@docs/README.md` line
+for `CLAUDE.md` and the text of the `docs.md` rule. The PR/MR template goes into the report in any
+case, see below.
 
 ### PR/MR template
 

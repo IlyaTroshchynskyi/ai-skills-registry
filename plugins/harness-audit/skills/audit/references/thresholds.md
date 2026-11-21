@@ -6,7 +6,7 @@ A value near a threshold is not a finding but a reason to look at the content.
 
 | ID | Threshold | Source |
 | --- | --- | --- |
-| CTX-S1 | Root `CLAUDE.md` / `.claude/CLAUDE.md` / `AGENTS.md`: more than 200 lines is a finding. Same threshold for nested `CLAUDE.md` (A2) | Anthropic: "target under 200 lines" — [Memory](https://code.claude.com/docs/en/memory); unrot: >100 lines warn, >200 error — [unrot](https://github.com/unrot-dev/unrot) |
+| CTX-S1 | Root `CLAUDE.md` / `.claude/CLAUDE.md` / `AGENTS.md`: more than 200 lines is a finding. A nested `CLAUDE.md` (A2): more than 300 lines | Anthropic: "target under 200 lines" — [Memory](https://code.claude.com/docs/en/memory); unrot: >100 lines warn, >200 error — [unrot](https://github.com/unrot-dev/unrot); 300 for a nested file of a code folder with its own stack: project decision of 2026-11-16 |
 | CTX-S2 | Any instruction file over 40,000 characters or `startup_chars` over 40,000 is a finding. Claude Code publishes no overall limit | Claude Code warning at about 40,000 characters, as `/doctor` described it during calibration (2026-10-17); [Memory](https://code.claude.com/docs/en/memory) |
 | SK-03 | `description` over 1,024 characters (portability) or `description` + `when_to_use` over 1,536 is a finding | [Skills frontmatter](https://code.claude.com/docs/en/skills#frontmatter-reference); [agentskills.io](https://agentskills.io/specification) |
 | SK-10 | `SKILL.md` body over 500 lines is a finding; over ~5,000 tokens is a remark | [Skill authoring](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices); sources disagree on the numbers |

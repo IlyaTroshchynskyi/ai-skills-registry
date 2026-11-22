@@ -141,14 +141,16 @@ external content open a path for prompt injection.
      according to the history, built-in tools. If they cover a need, MCP is not needed (MCP-03). What
      remains are the needs for which the person does not use anything yet.
   3. **Where to search.** For each remaining need, `scripts/find_skill_candidates.py` over the
-     `claude plugin list --json --available` catalog (recipe in `references/skill-sources.md`); with
-     consent to network, also at the vendor of that system or library, only its GitHub and
-     documentation. A `popular` tier candidate goes in the "Worth a look" format.
+     `claude plugin list --json --available` catalog (recipe in `references/skill-sources.md`), with
+     queries by the system's and the vendor's name, not only the library's. With consent to network,
+     also at the vendor of that system or library: its documentation and the GitHub organizations the
+     documentation links to. A `popular` tier candidate goes in the "Worth a look" format.
 
   → A recommendation in the "Install" format from `modules/skills.md`: source tier, "What changes for
   you", cost, the 9-item security check, MCP-06 (pinned version; for a DB, read-only and not
   production), the connect command. Location: `.mcp.json` is "in repo", user scope is "personal". If
-  what already exists covers the need, one line in "Checked and fine": "<need> — covered by <what>".
+  what already exists covers the need, one line in "Checked and fine": "<need> — covered by <what>";
+  if the search found servers for it, add "checked <candidates>: <why not>".
 
 The others (MCP-01, MCP-04, MCP-05, MCP-07) come after calibration.
 

@@ -397,6 +397,31 @@ def test_mcp_search_uses_the_same_script() -> None:
     assert "find_skill_candidates.py" in mcp08 and "Worth a look" in mcp08
 
 
+def test_candidates_are_searched_by_system_and_vendor_not_only_by_library() -> None:
+    """A client library is often named unlike its system (pymongo, boto3), and vendors keep several orgs."""
+    sources = read("references/skill-sources.md")
+    recipe = flat(sources.split("## Search recipe")[1].split('## The "Worth a look" rule')[0])
+    query = recipe.split("2. **Query.**")[1].split("3. **Script output.**")[0]
+    for s in ["Query the systems too", "the vendor's name", "`pymongo` → `mongodb`", "narrower query"]:
+        assert s in query, s
+    assert "system queries of step 2" in recipe
+    vendor = recipe.split("5. **At the vendor.**")[1].split("6. **")[0]
+    for s in ["company behind the system", "several organizations", "documentation links to it", "successor"]:
+        assert s in vendor, s
+    assert "only on the GitHub organization from `vendors`" not in vendor
+    tiers = flat(sources.split("## Source tiers")[1].split("## Search recipe")[0])
+    assert "documentation links to" in tiers
+    mcp08 = flat(read("modules/mechanisms.md").split("**MCP-08.")[1].split("The others (MCP-01")[0])
+    for s in ["the system's and the vendor's name", "organizations the documentation links to",
+              "checked <candidates>: <why not>"]:
+        assert s in mcp08, s
+    assert "only its GitHub and documentation" not in mcp08
+    h3 = h3_section()
+    assert "the vendor's name" in h3 and "checked <candidates>: <why not>" in h3
+    network = flat(read("references/consent.md").split("## Network")[1])
+    assert "public libraries and systems" in network
+
+
 def docs_template() -> str:
     return read("report-template.md").split("## Documentation: target structure")[1].split("## Fresh-session test")[0]
 

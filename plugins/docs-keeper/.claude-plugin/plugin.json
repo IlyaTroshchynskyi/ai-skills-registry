@@ -1,7 +1,7 @@
 {
   "name": "docs-keeper",
   "displayName": "Docs Keeper",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Keeps a repository's documentation true. After a code change it finds every document the change touched, fixes what became false with the smallest edit, and reports what it left alone.",
   "author": {
     "name": "Illia Troshchynskyi"

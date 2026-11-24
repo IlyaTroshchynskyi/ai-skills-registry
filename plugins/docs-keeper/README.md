@@ -57,13 +57,15 @@ The skill offers this line once when it is missing, and never adds it without yo
 | Living | README, domain and task pages, reference, `CLAUDE.md` | edited in place |
 
 5. Updates indexes and links, checks links and paths in what it touched, and reports: updated, left
-   as is, needs a person.
+   as is, proposed removals, needs a person.
 
 ## What it does and does not touch
 
 - It edits documentation only. It does not change code, tests or configuration, and it does not stage
   or commit.
 - It runs a generator only to refresh a generated document that the change made stale.
+- It never deletes text because it only retells the code. It lists such passages as proposed
+  removals and removes one only after you confirm it.
 - It never invents the reason for a decision. If the reason is not in the conversation, a commit or
   the code, it asks or leaves the record for you.
 - It writes each document in the language that document already uses, and talks to you in yours.

@@ -34,6 +34,12 @@ Two facts set the bar:
   retelling of the code: what a function does step by step, lists of files or classes, values or
   defaults copied from it. A public flag, setting or route goes to the reference that owns such
   names; other documents link there.
+- **Propose a removal, never make one.** A passage that is still true but only retells the code is
+  a candidate for removal. You do not delete it, shorten it or reword it yourself: you list it in
+  the report under "Proposed removals" and remove it only after the user confirms that item, by
+  naming it or by saying all of them. An answer to some other question is not a confirmation. Look
+  for such passages only in the documents you open for this change; do not audit the rest. A
+  sentence that became false because a name or a value changed is still fixed, as before.
 - **An existing page before a new one.** Create a file only when the subject has no home anywhere.
 - **Records are not stale.** A decision record, a released changelog section and an archived
   document say what was true then. A removed name inside them is history, not an error.
@@ -75,6 +81,11 @@ symbol it comes from, and the old and the new value where there is one.
 | how to install, build, test, run or deploy | a speed-up nobody can see from outside |
 | a dependency or a service the project now needs or no longer needs | tests, formatting, comments |
 | a choice that reverses or replaces an earlier decision | |
+
+For each item ask: could a reader get this from the code or its tests - a label, a state, a limit,
+what a function returns? If so, no document needs a new sentence for it. A document that already
+states it, and now states it wrongly, is still fixed (step 5). What a document gains is only what the
+code cannot say: why, a contract with the outside, an invariant, a trap, a step a person takes.
 
 If the list is empty and the script found no stale mention, the result is "nothing to update": go to
 step 8.
@@ -121,14 +132,17 @@ sentence you came for is often false for the same reason.
 | History | `kind: archive` | nothing |
 | Living | `kind: living` and `kind: instructions` | edit in place |
 
-For each affected document decide one of: fix a statement, remove a statement, add an entry, or
-leave it, with the reason. A document that mentions the changed thing but says nothing false stays
-as it is.
+For each affected document decide one of: fix a statement, remove a statement that became false, add
+an entry, propose a removal, or leave it, with the reason. A document that mentions the changed thing
+but says nothing false stays as it is. A passage that only retells the code is a proposed removal
+whatever else you decide about its document.
 
 ### 5. Edit
 
 - Change the false statement and the examples that depend on it. Keep the document's own wording,
   structure and tone.
+- A passage you propose to remove stays as it is. If it also holds a false statement, fix that
+  statement first, so the document is true while the user decides.
 - A new fact goes into the one document that owns that kind of fact. Other documents link to it.
 - On a domain page, a new fact goes under the section the template names for it. When you edit a
   section whose heading differs from the template's name, rename that heading; leave the sections you
@@ -165,7 +179,9 @@ python3 -I ${CLAUDE_SKILL_DIR}/scripts/scan_docs.py impact --base <base_commit f
 - In the second run, every remaining entry in `stale_mentions` is in a record or in history, or you
   can name the reason it stays.
 - Read each edit once more against the code. Every command, path, name and number you wrote exists
-  exactly as written.
+  exactly as written, and nothing you wrote retells the code: no label, no list of files, hooks or
+  classes, no copied value that the code already shows.
+- Nothing was removed that the user has not confirmed.
 
 ### 8. Report
 
@@ -180,9 +196,16 @@ Updated
 Left as is
 - `path`: why (a record, history, still true)
 
+Proposed removals (nothing removed yet)
+- `path`, lines 40-52: what the passage says, and where the code or a test shows the same
+
 Needs a person
 - what you could not settle and what you need to know
 ```
+
+After the report, ask which proposed removals to make. Remove only the items the user confirms, by
+naming them or by saying all of them, then run step 7 again on those files. Without a confirmation
+the passages stay.
 
 When nothing needed changing, say so in one or two sentences with the reason, for example: "No
 documentation changes: the diff renames a private helper and extracts a function; no document
